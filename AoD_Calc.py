@@ -2,51 +2,51 @@ import os
 
 SIZE = int(os.get_terminal_size().columns)
 
-def result(h, health, tick, regen, heal):
-    if h > 0:
-        remaining = ((health - h) / health) * 100
+def result(current_health, total_health, damage_tick, health_regen, heal_amount):
+    if current_health > 0:
+        remaining_health = ((total_health - current_health) / total_health) * 100
         print('~' * SIZE)
         print('~' * round((SIZE / 2 - 8)) + ' AoD sustained! ' + '~' * (round(SIZE / 2 - 8)))
         print('~' * SIZE)
-        print(f'Percent of Health Remaining: {round(remaining)}%'.center(SIZE))
+        print(f'Percent of Health Remaining: {round(remaining_health)}%'.center(SIZE))
     else:
         print('~' * round((SIZE / 2 - 11)) + 'AoD failed to sustain!' + '~' * round((SIZE / 2 - 11)))
     
-    print(f'Total Health: {health}'.center(SIZE))
-    print(f'Healing: {heal + regen}'.center(SIZE))
-    print(f'Damage Taken Per Tick of Poison: {round(tick)}'.center(SIZE))
+    print(f'Total Health: {total_health}'.center(SIZE))
+    print(f'Healing: {heal_amount + health_regen}'.center(SIZE))
+    print(f'Damage Taken Per Tick of Poison: {round(damage_tick)}'.center(SIZE))
 
 
-def calc(poison, health, regen, eff, dotr, x):
+def calc(total_damage, total_health, health_regen, healing_effectiveness, dot_reduction, points):
     base_poison = 28
-    e = 1 + eff / 100
-    h = health
-    poison = base_poison * (1 + (poison / 100))
+    effect = 1 + healing_effectiveness / 100
+    current_health = total_health
+    total_damage = base_poison * (1 + (total_damage / 100))
 
-    if x == True:
-        dr = dotr / 100 + (0.05 * x)
+    if points == True:
+        dr = dot_reduction / 100 + (0.05 * points)
     else:
-        dr = dotr / 100
+        dr = dot_reduction / 100
     
-    tick = (poison - (poison * dr))
-    heal = round((tick * 0.08) * e)
+    damage_tick = (total_damage - (total_damage * dr))
+    heal = round((damage_tick * 0.08) * effect)
     
     z = 0
-    while h > 0:
-        if h > health: 
-            h = health
-        if heal + regen > tick:
+    while current_health > 0:
+        if current_health > total_health: 
+            current_health = total_health
+        if heal + health_regen > damage_tick:
             break
-        if h - tick < 0:
-            h = 0
+        if current_health - damage_tick < 0:
+            current_health = 0
             break   
-        h = h - tick + heal + regen
-        heal = round(((health - h) * 0.08) * e)
+        current_health = current_health - damage_tick + heal + health_regen
+        heal = round(((total_health - current_health) * 0.08) * points)
         z += 1
         if z == 10:
             break
 
-    result(h, health, tick, regen, heal)
+    result(current_health, total_health, damage_tick, health_regen, heal)
 
 def error():
     print('Invalid Input. Try again.')
